@@ -96,8 +96,10 @@ MatchGame.flipCard = function($card, $game) {
   }
 
   $($card).data('flipped', true);
+  $($card).fadeOut(50);
   $($card).html($($card).data('value'));
   $($card).css('background-color', $($card).data('color'));
+  $($card).fadeIn(50);
 
   setTimeout(function () {
     checkMatch($card, $game);
