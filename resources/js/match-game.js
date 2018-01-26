@@ -1,4 +1,16 @@
 var MatchGame = {};
+var unflipBackColor = 'rgb(32,64,86)';
+var matchBackColor = 'rgb(153,153,153)';
+var matchColor = 'rgb(204,204,204)';
+
+var colors = ['hsl(25, 85%, 65%)',
+              'hsl(55, 85%, 65%)',
+              'hsl(90, 85%, 65%)',
+              'hsl(160, 85%, 65%)',
+              'hsl(220, 85%, 65%)',
+              'hsl(265, 85%, 65%)',
+              'hsl(310, 85%, 65%)',
+              'hsl(360, 85%, 65%)'];
 
 /*
   Sets up a new game after HTML document has loaded.
@@ -10,6 +22,11 @@ $(document).ready(function(){
 
   $(".card").click(function(){
     MatchGame.flipCard(this, "#game");
+  });
+
+  $(".restart").click(function(){
+    var cardValues = MatchGame.generateCardValues();
+    MatchGame.reshuffleCards(cardValues, "#game");
   });
 });
 
@@ -45,16 +62,6 @@ MatchGame.generateCardValues = function () {
 */
 
 MatchGame.renderCards = function(cardValues, $game) {
-  var flippedCards = [];
-  var colors = ['hsl(25, 85%, 65%)',
-                'hsl(55, 85%, 65%)',
-                'hsl(90, 85%, 65%)',
-                'hsl(160, 85%, 65%)',
-                'hsl(220, 85%, 65%)',
-                'hsl(265, 85%, 65%)',
-                'hsl(310, 85%, 65%)',
-                'hsl(360, 85%, 65%)'];
-
   $($game).html("");
   for (var i = 0; i < cardValues.length; i++) {
     var $card = $('<div class="card col-xs-3"></div>');
@@ -64,8 +71,8 @@ MatchGame.renderCards = function(cardValues, $game) {
     $card.data('flipped', false);
     $card.data('matched', false);
     $($game).append($card);
-    flippedCards.push(false);
   }
+  $($game).append($('<div class="restart col-xs-12">NEW GAME</div>'));
 };
 
 /*
@@ -82,30 +89,72 @@ MatchGame.flipCard = function($card, $game) {
   $($card).html($($card).data('value'));
   $($card).css('background-color', $($card).data('color'));
 
-  setTimeout(checkMatch($card), 5000);
+  setTimeout(function () { checkMatch($card, $game); }, 500);
 };
 
-function checkMatch($card){
-  var unflipColor = 'rgb(32,64,86)';
-  var matchColor = 'rgb(153,153,153)';
-  console.log('Check Match');
+function checkMatch($card, $game){
+  var gameEnded = true;
 
   $(".card").each(function(index){
     if ($(this).data('position') !== $($card).data('position') && $(this).data('flipped') === true && $(this).data('matched') === false) {
       if ($(this).data('value') === $($card).data('value')) {
-        $(this).css('background-color', matchColor);
-        $($card).css('background-color', matchColor);
+        $(this).css('background-color', matchBackColor);
+        $($card).css('background-color', matchBackColor);
+        $(this).css('color', matchColor);
+        $($card).css('color', matchColor);
         $(this).data('matched', true);
         $($card).data('matched', true);
       }
       else {
-        $(this).css('background-color', unflipColor);
-        $($card).css('background-color', unflipColor);
+        $(this).css('background-color', unflipBackColor);
+        $($card).css('background-color', unflipBackColor);
         $(this).data('flipped', false);
         $($card).data('flipped', false);
         $(this).html("");
         $($card).html("");
       }
     }
+    if ($(this).data('matched') === false) {
+      gameEnded = false;
+    }
+  });
+
+  if (gameEnded === true) {
+    setTimeout(function () { showFinalMessage($game); }, 500);
+  }
+};
+
+function showFinalMessage($game){
+  // $($game).html('');
+  // $($game).append($('<div class="card col-xs-3">E</div>'));
+  // $($game).append($('<div class="card col-xs-3">R</div>'));
+  // $($game).append($('<div class="card col-xs-3">E</div>'));
+  // $($game).append($('<div class="card col-xs-3">S</div>'));
+  // $($game).append($('<div class="card col-xs-3">U</div>'));
+  // $($game).append($('<div class="card col-xs-3">N</div>'));
+  // $($game).append($('<div class="card col-xs-3"> </div>'));
+  // $($game).append($('<div class="card col-xs-3"> </div>'));
+  // $($game).append($('<div class="card col-xs-3">P</div>'));
+  // $($game).append($('<div class="card col-xs-3">U</div>'));
+  // $($game).append($('<div class="card col-xs-3">T</div>'));
+  // $($game).append($('<div class="card col-xs-3">O</div>'));
+  // $($game).append($('<div class="card col-xs-3">G</div>'));
+  // $($game).append($('<div class="card col-xs-3">E</div>'));
+  // $($game).append($('<div class="card col-xs-3">N</div>'));
+  // $($game).append($('<div class="card col-xs-3">IO</div>'));
+  // $($game).append($('<div class="restart col-xs-12">NEW GAME</div>'));
+};
+
+MatchGame.reshuffleCards = function(cardValues, $game){
+  var counter = 0;
+  $(".card").each(function(index){
+    $(this).data('value', cardValues[counter]);
+    $(this).css('color', 'white');
+    $(this).data('matched', false);
+    $(this).css('background-color', unflipBackColor);
+    $(this).data('flipped', false);
+    $(this).data('color', colors[cardValues[counter]-1]);
+    $(this).html("");
+    counter++;
   });
 };

@@ -28,7 +28,8 @@ p{
   padding-top: 5.25rem;
 }
 
-.card{
+.card,
+.restart{
   background-color: rgb(32,64,86);
   font-size: 7rem;
   font-weight: 900;
